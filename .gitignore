@@ -1,0 +1,7 @@
+**/target
+/bin/
+.idea
+**/log
+**/*production*.conf
+**/log*
+__internal__/
