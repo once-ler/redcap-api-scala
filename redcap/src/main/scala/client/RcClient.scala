@@ -3,6 +3,7 @@ package com.eztier.redcap.client
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
+// import akka.http.scaladsl.model.HttpProtocols
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
@@ -24,10 +25,10 @@ class RcClient (config: RcConfig, connection: Option[Flow[HttpRequest, HttpRespo
     .withPath(Uri.Path(config.path))
 
   private val defaultRequestBody = Map(
-      "token" -> this.config.token,
-      "format" -> "json",
-      "type" -> "flat"
-    )
+    "token" -> this.config.token,
+    "format" -> "json",
+    "type" -> "flat"
+  )
 
   private def getUriSource(params: Option[FormData] = None) = {
     val request = HttpRequest(method = HttpMethods.POST,
@@ -65,7 +66,11 @@ class RcClient (config: RcConfig, connection: Option[Flow[HttpRequest, HttpRespo
                  will only export records where the age field is greater than 30.
    */
   override def exportRecords[A](options: Map[String, String])(implicit ev: Decoder[A]): Future[Either[Throwable, A]] = {
-    val params = FormData(defaultRequestBody ++ options)
+    val params = FormData(
+      defaultRequestBody ++
+        Map("content" -> "record") ++
+        options
+    )
 
     getUriSource(Some(params))
       .via(connection.getOrElse(defaultConnection))
@@ -76,17 +81,17 @@ class RcClient (config: RcConfig, connection: Option[Flow[HttpRequest, HttpRespo
       .recover {case ex => Left(ex)}
   }
 
-  override def importRecords[A](options: Map[String, String], records: A)(implicit ev: Encoder[A]): Future[Either[Throwable, Json]] = {
+  override def importRecords[A](records: A, options: Option[Map[String, String]] = None)(implicit ev: Encoder[A]): Future[Either[Throwable, Json]] = {
     val j: Json = records.asJson
 
     val params = FormData(
       defaultRequestBody ++
-      Map(
-        "content" -> "record",
-        "overwriteBehavior" -> "normal",
-        "data" -> j.noSpaces
-      ) ++
-      options
+        Map(
+          "content" -> "record",
+          "overwriteBehavior" -> "normal",
+          "data" -> j.noSpaces
+        ) ++
+        options.getOrElse(Map())
     )
 
     getUriSource(Some(params))

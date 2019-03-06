@@ -23,12 +23,11 @@ lazy val global = project
   .settings(settings)
   .aggregate(
     common,
-    model,
-    datasource
+    redcap
   )
   
 lazy val commonSettings = Seq(
-  version := "0.1.5",
+  version := "0.1.6",
   organization := "com.eztier",
   scalaVersion := "2.12.4",
   scalacOptions ++= compilerOptions,
@@ -79,8 +78,10 @@ val akkaHttpCirce = "de.heikoseeberger" %% "akka-http-circe" % "1.22.0"
 
 // circe
 val circeVersion = "0.10.0"
-val circeGenericExtras = "io.circe" %% "circe-generic-extras" % "0.10.0"
+val circeGenericExtras = "io.circe" %% "circe-generic-extras" % circeVersion
+val circeOptics = "io.circe" %% "circe-optics" % circeVersion
 val circeJava8 = "io.circe" %% "circe-java8" % "0.11.1"
+val circeDerivation = "io.circe" %% "circe-derivation" % "0.10.0-M1"
 
 lazy val redcap = project.
   settings(
@@ -91,6 +92,10 @@ lazy val redcap = project.
       akkaHttp,
       akkaHttpTestkit,
       akkaHttpCirce,
+      circeGenericExtras,
+      circeJava8,
+      circeDerivation,
+      circeOptics,
       scalaTest
     )
   ).dependsOn(

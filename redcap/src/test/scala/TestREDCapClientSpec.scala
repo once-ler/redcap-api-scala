@@ -1,6 +1,8 @@
 package com.eztier.redcap.test
 
 import java.net.URI
+import java.time.LocalDate
+
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{FormData, HttpRequest, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -11,7 +13,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import com.eztier.redcap.implicits.ExecutionContext._
 import com.eztier.redcap.test.UserImplicits._
+import com.eztier.redcap.types.{Enumeration11, Enumeration2, Enumeration5}
 import io.circe.{Decoder, Json}
+import io.circe.syntax._
 
 // import io.circe.generic.auto._
 // import io.circe.syntax._
@@ -98,6 +102,118 @@ class TestREDCapClientSpec extends FunSpec with Matchers {
       val r = Await.result(f, 10 seconds) // Future[Either[Exception, List[UserSlim]]]
 
       r should be ('right)
+    }
+
+    it("Should export demographics records") {
+      import com.eztier.common.Configuration.conf
+      import com.eztier.redcap.test.RcRecordImplicits._
+
+      val client = new RcClient(RcConfig(conf))
+
+      val f = client.exportRecords[List[Demographics]](
+        Map(
+          "records" -> "20",
+          "fields" -> "dmmrn,dmlast,dmfirst,dmdob",
+          "forms" -> "demographics"
+        )
+      )
+
+      val r = Await.result(f, 10 seconds)
+
+      println(r)
+    }
+
+    it("Should export all demographics records") {
+      import com.eztier.common.Configuration.conf
+      import com.eztier.redcap.test.RcRecordImplicits._
+
+      val client = new RcClient(RcConfig(conf))
+
+      val f = client.exportRecords[List[Demographics]](
+        Map(
+          "fields" -> "dmmrn,dmlast,dmfirst,dmdob",
+          "forms" -> "demographics",
+          "filterLogic" -> "[dmmrn] <> ''"
+        )
+      )
+
+      val r = Await.result(f, 10 seconds)
+
+      println(r)
+
+    }
+
+    it("Should export research specimen records") {
+      import com.eztier.common.Configuration.conf
+      import com.eztier.redcap.test.RcRecordImplicits._
+
+      val client = new RcClient(RcConfig(conf))
+
+      val f = client.exportRecords[List[ResearchSpecimen]](
+        Map(
+          "records" -> "20",
+          "fields" -> "record_id,pretreresspec,pretredia,pretrevisit,pretrespectype",
+          "forms" -> "pretreatmentinitial_research_specimens"
+        )
+      )
+
+      val r = Await.result(f, 10 seconds)
+
+      println(r)
+    }
+
+    it("Should export all fields in research specimen records in JSON") {
+      import com.eztier.common.Configuration.conf
+      import com.eztier.redcap.test.RcRecordImplicits._
+
+      val client = new RcClient(RcConfig(conf))
+
+      val f = client.exportRecords[List[Json]](
+        Map(
+          "records" -> "20",
+          "forms" -> "pretreatmentinitial_research_specimens"
+        )
+      )
+
+      val r = Await.result(f, 10 seconds)
+
+      println(r)
+    }
+
+    it("Should import research specimen records") {
+      import com.eztier.common.Configuration.conf
+      import com.eztier.redcap.test.RcRecordImplicits._
+
+      val client = new RcClient(RcConfig(conf))
+
+      val rec = OtherResearchSpecimen(
+        RecordId = "20",
+        RedcapRepeatInstrument = "pretreatmentinitial_research_specimens",
+        RedcapRepeatInstance = 21, // 32767 is max instance number.
+        Pretreresspec = Enumeration2.Option0,
+        Pretredia = "",
+        Pretrevisit = Enumeration5.Option2,
+        Pretrespectype = Enumeration11.Option10,
+        Pretrespeid_10 = "OTHER123",
+        Pretredate_10 = LocalDate.now
+      )
+
+      val j = rec asJson
+      val b = j.hcursor.get[String]("record_id").toOption
+
+      import io.circe.optics.JsonPath._
+
+      val c = root.record_id.string
+      val d = c.getOption(j)
+
+      b should === (d)
+
+      val f = client.importRecords(List(rec))
+
+      val r = Await.result(f, 10 seconds)
+
+      println(r)
+
     }
 
   }

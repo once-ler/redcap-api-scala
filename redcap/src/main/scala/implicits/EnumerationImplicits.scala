@@ -1,7 +1,8 @@
-package com.eztier.redcap.types
+package com.eztier.redcap.implicits
 
-import io.circe.{Decoder, Encoder}
+import com.eztier.redcap.types._
 import io.circe.generic.extras.Configuration
+import io.circe.{Decoder, Encoder}
 
 object EnumerationImplicits {
   val renameKeys = (name: String) => name.charAt(0).toLower.toString + name.substring(1)
@@ -67,6 +68,22 @@ object EnumerationImplicits {
   implicit val encodeEnumeration9: Encoder[Enumeration9.Value] = Encoder.encodeString.contramap[Enumeration9.Value](_.toString)
   implicit val decodeEnumeration9: Decoder[Enumeration9.Value] = Decoder.decodeString.emap { str =>
     Enumeration9.values.find(_.toString == str) match {
+      case Some(a) => Right(a)
+      case _ => Left("Enumeration not found")
+    }
+  }
+
+  implicit val encodeEnumeration10: Encoder[Enumeration10.Value] = Encoder.encodeString.contramap[Enumeration10.Value](_.toString)
+  implicit val decodeEnumeration10: Decoder[Enumeration10.Value] = Decoder.decodeString.emap { str =>
+    Enumeration10.values.find(_.toString == str) match {
+      case Some(a) => Right(a)
+      case _ => Left("Enumeration not found")
+    }
+  }
+
+  implicit val encodeEnumeration11: Encoder[Enumeration11.Value] = Encoder.encodeString.contramap[Enumeration11.Value](_.toString)
+  implicit val decodeEnumeration11: Decoder[Enumeration11.Value] = Decoder.decodeString.emap { str =>
+    Enumeration11.values.find(_.toString == str) match {
       case Some(a) => Right(a)
       case _ => Left("Enumeration not found")
     }

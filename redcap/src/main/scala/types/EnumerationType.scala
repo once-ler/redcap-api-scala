@@ -75,3 +75,32 @@ object Enumeration9 extends Enumeration {
   val Option8 = Value("8")
   val Blank = Value("")
 }
+
+object Enumeration10 extends Enumeration {
+  val Option0 = Value("0")
+  val Option1 = Value("1")
+  val Option2 = Value("2")
+  val Option3 = Value("3")
+  val Option4 = Value("4")
+  val Option5 = Value("5")
+  val Option6 = Value("6")
+  val Option7 = Value("7")
+  val Option8 = Value("8")
+  val Option9 = Value("9")
+  val Blank = Value("")
+}
+
+object Enumeration11 extends Enumeration {
+  val Option0 = Value("0")
+  val Option1 = Value("1")
+  val Option2 = Value("2")
+  val Option3 = Value("3")
+  val Option4 = Value("4")
+  val Option5 = Value("5")
+  val Option6 = Value("6")
+  val Option7 = Value("7")
+  val Option8 = Value("8")
+  val Option9 = Value("9")
+  val Option10 = Value("10")
+  val Blank = Value("")
+}
