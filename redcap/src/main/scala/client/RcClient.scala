@@ -112,7 +112,7 @@ class RcClient (config: RcConfig, connection: Option[Flow[HttpRequest, HttpRespo
     }
 
   private def handleError(response: HttpResponse)(implicit ec: ExecutionContext, mat: Materializer): Future[HttpResponse] = {
-    if (response.status.isFailure()) Future.failed(new RuntimeException(s"code: ${response.status.value} description: ${response.status.reason}"))
+    if (response.status.isFailure()) Future.failed(new RuntimeException(s"code: ${response.status.value} description: ${response.entity.toString}"))
     else Future.successful(response)
   }
 }
